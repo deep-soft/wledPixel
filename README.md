@@ -105,6 +105,9 @@ s - "sun and cloud"
 ° - "degree symbol"
 ```
 
+## Icons in Wled small font:
+<img width="898" alt="Icons in Wled small font" src="https://github.com/deep-soft/wledPixel/blob/2718a4a148f07b287269a788125f40567b3b809b/img/wledfont_small.png">
+
 ## MQTT topics:
 * `devicePrefix/zoneN/workMode`         - zone work mode
 * `devicePrefix/zoneN/scrolleffectIn`   - scroll effect IN
@@ -131,15 +134,17 @@ workMode supported values:
 
 ## Wall clock
 Wall clock mode support next following display options:
-* `HH:MM`       - Hours : Minutes [21:43]
-* `HH:MM:SS`    - Hours : Minutes : Seconds [21:43:54]
-* `HH`          - Hours [21]
-* `MM`          - Minutes [43]
-* `dd.mm.yyyy`  - Day.Month.Year [21.06.2022]
-* `dd.mm`       - Day.Month [21.06]
-* `dd.mm aa`    - Day.Month weekday name (e.g., Sun) [21.06 Tue] *in Cyrillic font weekday name will be in Cyrillic
-* `aa`          - Weekday name (e.g. Sun) *in Cyrillic font weekday name will be in Cyrillic
-
+* `yyyy.mm.dd HH:MM:SS` - Year.Month.Day Hours:Minutes:Seconds [2022.06.21 21:43:00]
+* `yyyy.mm.dd`          - Year.Month.Day [2022.06.21]
+* `dd.mm.yyyy`          - Day.Month.Year [21.06.2022]
+* `dd.mm aa`            - Day.Month weekday name (e.g., Sun) [21.06 Tue] *in Cyrillic font weekday name will be in Cyrillic
+* `dd.mm`               - Day.Month [21.06]
+* `HH:MM:SS`            - Hours : Minutes : Seconds [21:43:54]
+* `HH:MM`               - Hours : Minutes [21:43]
+* `HH`                  - Hours [21]
+* `MM`                  - Minutes [43]
+* `aa`                  - Weekday name (e.g. Sun) *in Cyrillic font weekday name will be in Cyrillic
+* `dd.mm aa HH:MM`      - Day.Month weekday name Hours : Minutes (e.g., Sun) [21.06 Tue] [21:43] *in Cyrillic font weekday name will be in Cyrillic
 
 ## Scroll effect list
 Default effects:
