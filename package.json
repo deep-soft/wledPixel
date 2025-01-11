@@ -1,0 +1,20 @@
+{
+  "name": "wledPixel",
+  "version": "2.7.1",
+  "description": "Dot matrix panel management",
+  "main": "",
+  "directories": {
+    "lib": "lib",
+    "img": "img"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/widapro/wledPixel.git"
+  },
+  "author": "widapro",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/widapro/wledPixel/issues"
+  },
+  "homepage": "https://github.com/widapro/wledPixel#readme"
+}
