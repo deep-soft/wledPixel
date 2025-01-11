@@ -1,4 +1,5 @@
 #include <Arduino.h>
+#include "WLEDPIX.h"
 
 #if defined(ESP8266)
   #pragma message "Compiling for ESP8266 board"
@@ -32,7 +33,7 @@
 #include <OneWire.h>
 #include <DallasTemperature.h>
 #include <Preferences.h>
-#include <AsyncElegantOTA.h>
+//#include <ElegantOTA.h>
 
 #include "indexPage.h"
 #include "settingsPage.h"
@@ -68,7 +69,9 @@ int nLoop = 0;
 bool restartESP         = false;
 bool allTestsFinish     = false;
 bool initConfig = false;
+#ifndef WLEDPIX_USE_MY_CONFIG
 char const *wifiAPpassword  = "12345678";
+#endif
 unsigned long currentMillis;
 unsigned long previousMillis = 0;
 
@@ -85,7 +88,7 @@ String dsTemp = "-127";
 char dsTempBuff[5];
 bool dsTempToDisplay = false;
 
-
+#ifndef WLEDPIX_USE_MY_CONFIG
 //// MQTT settings ////
 bool mqttEnable           = false;
 String mqttServerAddress  = "";
@@ -93,6 +96,7 @@ uint16_t mqttServerPort   = 1883;
 String mqttUsername       = "";
 String mqttPassword       = "";
 long lastReconnectAttempt = 0;
+#endif
 PubSubClient mqttClient(mqttEspClient);
 
 String shortMACaddr = WiFi.macAddress().substring(12, 14) + WiFi.macAddress().substring(15); // last five chars of the MAC, ie: C0A4;
@@ -133,9 +137,9 @@ typedef struct {
 
 // structure:
 ZoneData zones[] = {
-  {0, 3, 35, 1, 3, 0, "PA_CENTER", "PA_SCROLL_DOWN", "PA_NO_EFFECT", "wledFont_cyrillic", "manualInput", "HHMM", "", "", "owmTemperature", "", "", "", false},
-  {4, 5, 35, 1, 3, 0, "PA_CENTER", "PA_SCROLL_DOWN", "PA_NO_EFFECT", "wledFont_cyrillic", "manualInput", "HHMM", "", "", "owmTemperature", "", "", "", false},
-  {6, 7, 35, 1, 3, 0, "PA_CENTER", "PA_SCROLL_DOWN", "PA_NO_EFFECT", "wledFont_cyrillic", "manualInput", "HHMM", "", "", "owmTemperature", "", "", "", false},
+  {0, 3, 35, 1, 3, 0, "PA_CENTER", "PA_SCROLL_DOWN", "PA_NO_EFFECT", "wledFont_small", "manualInput", "HHMM", "", "", "owmTemperature", "", "", "", false},
+  {4, 5, 35, 1, 3, 0, "PA_CENTER", "PA_SCROLL_DOWN", "PA_NO_EFFECT", "wledFont_small", "manualInput", "HHMM", "", "", "owmTemperature", "", "", "", false},
+  {6, 7, 35, 1, 3, 0, "PA_CENTER", "PA_SCROLL_DOWN", "PA_NO_EFFECT", "wledFont_small", "manualInput", "HHMM", "", "", "owmTemperature", "", "", "", false},
 //  {7, 7, 35, 1, 3000, 0, "PA_CENTER", "PA_SCROLL_DOWN", "PA_NO_EFFECT", "wledFont", "manualInput", "HHMM", "", "", "owmTemperature", "", "", ""},
 };
 
@@ -150,9 +154,14 @@ char zone1Message[100] = "zone1";
 char zone2Message[100] = "zone2";
 //char zone3Message[50] = "zone3";
 
+// previous time minute
+String PreviousTimeAsMinute = "00";
+
+#ifndef WLEDPIX_USE_MY_CONFIG
 // Initialize NTP
-String ntpServer = "us.pool.ntp.org";
+String ntpServer = "pool.ntp.org";
 int8_t ntpTimeZone = 3;
+#endif
 WiFiUDP ntpUDP;
 unsigned long previousNTPsyncMillis = millis();
 uint16_t ntpUpdateInterval = 6; // in hours
@@ -197,6 +206,7 @@ void applyZoneFont(int zone, String font) {
   if(font == F("default"))           P.setFont(zone, nullptr);
   if(font == F("wledFont"))          P.setFont(zone, wledFont);
   if(font == F("wledFont_cyrillic")) P.setFont(zone, wledFont_cyrillic);
+  if(font == F("wledFont_small"))    P.setFont(zone, wledFont_small);
   if(font == F("wledSymbolFont"))    P.setFont(zone, wledSymbolFont);
 }
 
@@ -982,7 +992,8 @@ String getCurTime(String curZoneFont, String displayFormat) {
       
       //String weekDays[7] = {"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"};
       String weekDays[7] = {"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"};
-      String weekDaysCyrillic[7] = {"½", "§", "©", "®", "µ", "¶", "¼"};
+//      String weekDaysCyrillic[7] = {"½", "§", "©", "®", "µ", "¶", "¼"};
+      String weekDaysCyrillic[7] = {"Lun", "Mar", "Mie", "Joi", "Vin", "Sam", "Dum"};
       String weekDay;
       if (curZoneFont == "wledFont_cyrillic") {
         weekDay = weekDaysCyrillic[timeClient.getDay()];  
@@ -991,6 +1002,7 @@ String getCurTime(String curZoneFont, String displayFormat) {
       }
       int currentYear = ptm->tm_year+1900;
 
+      if (displayFormat == "yyyy.mm.dd") t = String(currentYear) + "." + currentMonthStr + "." + monthDayStr;
       if (displayFormat == "ddmmyyyy") t = monthDayStr + "." + currentMonthStr + "." + String(currentYear);
       if (displayFormat == "ddmm") t = monthDayStr + "." + currentMonthStr;
       if (displayFormat == "ddmmaa") t = monthDayStr + "." + currentMonthStr + String(weekDay);
@@ -998,6 +1010,10 @@ String getCurTime(String curZoneFont, String displayFormat) {
       if (displayFormat == "ddmmaahhmm") {
         t.remove(5,4);
         t = monthDayStr + "." + currentMonthStr + " " + String(weekDay) + " " + t;
+      }
+      if (displayFormat == "yyyy.mm.dd HH:MM:SS") {
+         String tHMS = (String)timeClient.getFormattedTime(); // returns HH:MM:SS
+         t = "  " + String(currentYear) + "." + currentMonthStr + "." + monthDayStr + " " + tHMS;
       }
       return t;
 }
@@ -1011,7 +1027,7 @@ String flashClockDots(String t) {
 void displayAnimation() {
   if (P.displayAnimate()) {
     if (zones[0].newMessageAvailable && P.getZoneStatus(0)) {
-        Serial.print(F("\nzone0 Message availabel: "));
+        Serial.print(F("\nzone0 Message available: "));
         Serial.println(zone0Message);
         zones[0].newMessageAvailable = false;
         P.setTextBuffer(0, zone0Message);
@@ -1019,7 +1035,7 @@ void displayAnimation() {
     }
 
     if (zones[1].newMessageAvailable && P.getZoneStatus(1)) {
-        Serial.print(F("\nzone1 Message availabel: "));
+        Serial.print(F("\nzone1 Message available: "));
         Serial.println(zone1Message);
         zones[1].newMessageAvailable = false;
         P.setTextBuffer(1, zone1Message);
@@ -1027,7 +1043,7 @@ void displayAnimation() {
     }
 
     if (zones[2].newMessageAvailable && P.getZoneStatus(2)) {
-        Serial.print(F("\nzone2 Message availabel: "));
+        Serial.print(F("\nzone2 Message available: "));
         Serial.println(zone2Message);
         zones[2].newMessageAvailable = false;
         P.setTextBuffer(2, zone2Message);
@@ -1035,7 +1051,7 @@ void displayAnimation() {
     }
 
 //    if (zone3newMessageAvailable && P.getZoneStatus(3)) {
-//        Serial.printf("\nzone3Message availabel: %s", zone3Message);
+//        Serial.printf("\nzone3Message available: %s", zone3Message);
 //        zone3newMessageAvailable = false;
 //        P.setTextBuffer(3, zone3Message);
 //        P.displayReset(3);
@@ -1368,7 +1384,7 @@ void setup() {
   server.begin();
 
   // Start ElegantOTA
-  AsyncElegantOTA.begin(&server);
+//  ElegantOTA.begin(&server);
 
   // Start ds18b20
   sensors.begin();
@@ -1393,9 +1409,18 @@ void testZones(uint8_t n) {
     P.setTextEffect(0, PA_SCROLL_LEFT, PA_NO_EFFECT);
     zoneNewMessage(0, "ip: " + WiFi.localIP().toString(), "");
   }
+  if (n == zoneNumbers) {
+    P.setCharSpacing(0,1);
+    P.setFont(0, wledFont_small);
+    P.setSpeed(0, 50);
+    P.setTextEffect(0, PA_SCROLL_LEFT, PA_NO_EFFECT);
+    zoneNewMessage(0, "ip: " + WiFi.localIP().toString(), "");
+  }
 }
 
 void loop() {
+  static int animationIdYMDHMS = 0;
+
   currentMillis = millis();
   
   #if defined(ESP32)
@@ -1516,10 +1541,17 @@ void loop() {
       // Wall Clock
       if (zones[n].workMode == "wallClock") {
         String curTimeNew = getCurTime(zones[n].font, zones[n].clockDisplayFormat);
-        if (zones[n].clockDisplayFormat == "HHMM" || zones[n].clockDisplayFormat == "HHMMSS" || zones[n].clockDisplayFormat == "ddmmaahhmm") {
+
+        if (zones[n].clockDisplayFormat == "HHMM" || zones[n].clockDisplayFormat == "HHMMSS" || zones[n].clockDisplayFormat == "ddmmaahhmm"  || zones[n].clockDisplayFormat == "yyyy.mm.dd HH:MM:SS") {
           if (!disableDotsBlink) {
             if (currentMillis - zones[n].previousMillis >= 1000) {
                 zones[n].previousMillis = currentMillis;
+                if (zones[n].clockDisplayFormat == "yyyy.mm.dd HH:MM:SS") {
+                    zones[n].curTime = curTimeNew;
+                    P.setPause(n, 10000);
+                    P.setTextEffect(n, stringToTextEffectT(zones[n].scrollEffectIn), PA_NO_EFFECT);
+                    zoneNewMessage(n, zones[n].curTime, "");
+                    } else {
                     if (zones[n].curTime == curTimeNew || zones[n].curTime == flashClockDots(curTimeNew)) {
                         if (zones[n].curTime.indexOf(":") > 0) curTimeNew.replace(":", "¦");
                         P.setPause(n,100);
@@ -1533,6 +1565,7 @@ void loop() {
                         P.setTextEffect(n, stringToTextEffectT(zones[n].scrollEffectIn), PA_NO_EFFECT);
                         zoneNewMessage(n, zones[n].curTime, "");
                     }
+                }
             }
           } else {
             if (currentMillis - zones[n].previousMillis >= 60000) {
