@@ -112,13 +112,17 @@ const char settingsPage[] PROGMEM = R"=====(<!doctype html>
               <div>
                     <h6 class="my-2">Wall clock</h6>
                     <small class="text-muted">Clock mode. It has the following display options:
-                        <br><b>HH:MM</b> - Hours : Minutes [21:43]
-                        <br><b>HH:MM:SS</b> - Hours : Minutes : Seconds [21:43:54]
-                        <br><b>HH</b> - Hours [21]
-                        <br><b>MM</b> - Minutes [43]
-                        <br><b>dd.mm.yyyy</b> - Day.Month.Year [21.06.2022]
-                        <br><b>dd.mm</b> - Day.Month [21.06]
-                        <br><b>dd.mm aa</b> - Day.Month weekday name (e.g., Sun) [21.06 Tue] <b>*</b><i>in Cyrillic font weekday name will be in Cyrillic</i>
+                        <br><b>yyyy.mm.dd HH:MM:SS</b> - Year.Month.Day Hours:Minutes:Seconds [2022.06.21 21:43:00]
+                        <br><b>yyyy.mm.dd</b>          - Year.Month.Day [2022.06.21]
+                        <br><b>dd.mm.yyyy</b>          - Day.Month.Year [21.06.2022]
+                        <br><b>dd.mm aa</b>            - Day.Month weekday name (e.g., Sun) [21.06 Tue] <b>*</b><i>in Cyrillic font weekday name will be in Cyrillic</i>
+                        <br><b>dd.mm</b>               - Day.Month [21.06]
+                        <br><b>HH:MM:SS</b>            - Hours : Minutes : Seconds [21:43:54]
+                        <br><b>HH:MM</b>               - Hours : Minutes [21:43]
+                        <br><b>HH</b>                  - Hours [21]
+                        <br><b>MM</b>                  - Minutes [43]
+                        <br><b>aa</b>                  - weekday name (e.g., Sun) <b>*</b><i>in Cyrillic font weekday name will be in Cyrillic</i>
+                        <br><b>dd.mm aa HH:MM</b>      - Day.Month weekday name Hours : Minutes (e.g., Sun) [21.06 Tue] [21:43] <b>*</b><i>in Cyrillic font weekday name will be in Cyrillic</i>
                         <br><br><b>Advice</b><br>In <b>HH:MM</b> and <b>HH:MM:SS</b> mode, two dots flash every second. For correct operation, it is recommended to set the <b>effectIN</b> and <b>OUT</b> to the value <b>NO_EFFECT</b>.
                     </small>
               </div>
@@ -310,13 +314,15 @@ const char settingsPage[] PROGMEM = R"=====(<!doctype html>
                   <div class="col-7" id="clockDisplayFormatZone0Div" style="display: none;">
                     <label for="clockDisplayFormatZone0" class="form-label">Time format</label>
                         <select id="clockDisplayFormatZone0" class="form-select">
-                          <option value="HHMM">HH:MM</option>
+                          <option value="yyyy.mm.dd HH:MM:SS">yyyy.mm.dd HH:MM:SS</option>
+                          <option value="yyyy.mm.dd">yyyy.mm.dd</option>
+                          <option value="ddmmyyyy">dd.mm.yyyy</option>
+                          <option value="ddmmaa">dd.mm aa</option>
+                          <option value="ddmm">dd.mm</option>
                           <option value="HHMMSS">HH:MM:SS</option>
+                          <option value="HHMM">HH:MM</option>
                           <option value="HH">HH</option>
                           <option value="MM">MM</option>
-                          <option value="ddmmyyyy">dd.mm.yyyy</option>
-                          <option value="ddmm">dd.mm</option>
-                          <option value="ddmmaa">dd.mm aa</option>
                           <option value="aa">aa</option>
                           <option value="ddmmaahhmm">ddmmaahhmm</option>
                         </select>
@@ -350,6 +356,7 @@ const char settingsPage[] PROGMEM = R"=====(<!doctype html>
                         <option value="default">Default</option>
                         <option value="wledFont">Wled font</option>
                         <option value="wledFont_cyrillic">Cyrillic</option>
+                        <option value="wledFont_small">small</option>
                         <option value="wledSymbolFont">Wled Symbol Font</option>
                     </select>
                   </div>
@@ -486,13 +493,15 @@ const char settingsPage[] PROGMEM = R"=====(<!doctype html>
                   <div class="col-7" id="clockDisplayFormatZone1Div" style="display: none;">
                     <label for="clockDisplayFormatZone1" class="form-label">Time format</label>
                         <select id="clockDisplayFormatZone1" class="form-select">
-                          <option value="HHMM">HH:MM</option>
+                          <option value="yyyy.mm.dd HH:MM:SS">yyyy.mm.dd HH:MM:SS</option>
+                          <option value="yyyy.mm.dd">yyyy.mm.dd</option>
+                          <option value="ddmmyyyy">dd.mm.yyyy</option>
+                          <option value="ddmmaa">dd.mm aa</option>
+                          <option value="ddmm">dd.mm</option>
                           <option value="HHMMSS">HH:MM:SS</option>
+                          <option value="HHMM">HH:MM</option>
                           <option value="HH">HH</option>
                           <option value="MM">MM</option>
-                          <option value="ddmmyyyy">dd.mm.yyyy</option>
-                          <option value="ddmm">dd.mm</option>
-                          <option value="ddmmaa">dd.mm aa</option>
                           <option value="aa">aa</option>
                           <option value="ddmmaahhmm">ddmmaahhmm</option>
                         </select>
@@ -526,6 +535,7 @@ const char settingsPage[] PROGMEM = R"=====(<!doctype html>
                         <option value="default">Default</option>
                         <option value="wledFont">Wled font</option>
                         <option value="wledFont_cyrillic">Cyrillic</option>
+                        <option value="wledFont_small">small</option>
                         <option value="wledSymbolFont">Wled Symbol Font</option>
                     </select>
                   </div>
@@ -663,13 +673,15 @@ const char settingsPage[] PROGMEM = R"=====(<!doctype html>
                   <div class="col-7" id="clockDisplayFormatZone2Div" style="display: none;">
                     <label for="clockDisplayFormatZone2" class="form-label">Time format</label>
                         <select id="clockDisplayFormatZone2" class="form-select">
-                          <option value="HHMM">HH:MM</option>
+                          <option value="yyyy.mm.dd HH:MM:SS">yyyy.mm.dd HH:MM:SS</option>
+                          <option value="yyyy.mm.dd">yyyy.mm.dd</option>
+                          <option value="ddmmyyyy">dd.mm.yyyy</option>
+                          <option value="ddmmaa">dd.mm aa</option>
+                          <option value="ddmm">dd.mm</option>
                           <option value="HHMMSS">HH:MM:SS</option>
+                          <option value="HHMM">HH:MM</option>
                           <option value="HH">HH</option>
                           <option value="MM">MM</option>
-                          <option value="ddmmyyyy">dd.mm.yyyy</option>
-                          <option value="ddmm">dd.mm</option>
-                          <option value="ddmmaa">dd.mm aa</option>
                           <option value="aa">aa</option>
                           <option value="ddmmaahhmm">ddmmaahhmm</option>
                         </select>
@@ -703,6 +715,7 @@ const char settingsPage[] PROGMEM = R"=====(<!doctype html>
                         <option value="default">Default</option>
                         <option value="wledFont">Wled font</option>
                         <option value="wledFont_cyrillic">Cyrillic</option>
+                        <option value="wledFont_small">small</option>
                         <option value="wledSymbolFont">Wled Symbol Font</option>
                     </select>
                   </div>
@@ -838,13 +851,15 @@ const char settingsPage[] PROGMEM = R"=====(<!doctype html>
                   <div class="col-7" id="clockDisplayFormatZone3Div" style="display: none;">
                     <label for="clockDisplayFormatZone3" class="form-label">Time format</label>
                         <select id="clockDisplayFormatZone3" class="form-select">
-                          <option value="HHMM">HH:MM</option>
+                          <option value="yyyy.mm.dd HH:MM:SS">yyyy.mm.dd HH:MM:SS</option>
+                          <option value="yyyy.mm.dd">yyyy.mm.dd</option>
+                          <option value="ddmmyyyy">dd.mm.yyyy</option>
+                          <option value="ddmmaa">dd.mm aa</option>
+                          <option value="ddmm">dd.mm</option>
                           <option value="HHMMSS">HH:MM:SS</option>
+                          <option value="HHMM">HH:MM</option>
                           <option value="HH">HH</option>
                           <option value="MM">MM</option>
-                          <option value="ddmmyyyy">dd.mm.yyyy</option>
-                          <option value="ddmm">dd.mm</option>
-                          <option value="ddmmaa">dd.mm aa</option>
                           <option value="aa">aa</option>
                           <option value="ddmmaahhmm">ddmmaahhmm</option>
                         </select>
@@ -878,6 +893,7 @@ const char settingsPage[] PROGMEM = R"=====(<!doctype html>
                         <option value="default">Default</option>
                         <option value="wledFont">Wled font</option>
                         <option value="wledFont_cyrillic">Cyrillic</option>
+                        <option value="wledFont_small">small</option>
                         <option value="wledSymbolFont">Wled Symbol Font</option>
                     </select>
                   </div>
